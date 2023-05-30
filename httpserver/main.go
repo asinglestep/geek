@@ -15,10 +15,14 @@ import (
 	"github.com/golang/glog"
 )
 
+var configPath string
+
 func main() {
+	flag.StringVar(&configPath, "config", "./etc/config.toml", "config path")
 	flag.Parse()
+
 	var conf config.Config
-	if _, err := toml.DecodeFile("./etc/config.toml", &conf); err != nil {
+	if _, err := toml.DecodeFile(configPath, &conf); err != nil {
 		glog.Errorf("toml.DecodeFile error: %v", err)
 		os.Exit(-1)
 	}
