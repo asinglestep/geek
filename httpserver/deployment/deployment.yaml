@@ -28,7 +28,7 @@ spec:
         app: httpserver
     spec:
       containers:
-      - image: winter2023/httpserver:6e3b25a
+      - image: winter2023/httpserver:52434ef
         name: httpserver
         args:
         - --config
