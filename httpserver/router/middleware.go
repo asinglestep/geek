@@ -3,8 +3,9 @@ package router
 import (
 	"os"
 
+	"geek/httpserver/utils/logger"
+
 	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
 )
 
 func Version(c *gin.Context) {
@@ -23,5 +24,5 @@ func CopyRequestHeader(c *gin.Context) {
 func Log(c *gin.Context) {
 	c.Next()
 
-	glog.Infof("[Access] ip: %v, status code: %v", c.ClientIP(), c.Writer.Status())
+	logger.WithContext(c.Request.Context()).Infof("[Access] ip: %v, status code: %v", c.ClientIP(), c.Writer.Status())
 }

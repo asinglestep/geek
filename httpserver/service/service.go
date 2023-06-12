@@ -2,9 +2,8 @@ package service
 
 import (
 	"context"
+	"geek/httpserver/utils/logger"
 	"time"
-
-	"github.com/golang/glog"
 )
 
 type Service struct {
@@ -22,7 +21,7 @@ func NewService(opts ...Option) *Service {
 func (s *Service) Start() error {
 	go func() {
 		if err := s.opts.server.Start(); err != nil {
-			glog.Errorf("Server start error: %v", err)
+			logger.Errorf("Server start error: %v", err)
 		}
 	}()
 

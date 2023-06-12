@@ -1,0 +1,94 @@
+# configmap
+apiVersion: v1
+data:
+  config.toml: |
+    [server]
+      address="0.0.0.0:8888"
+    [log]
+      level="info"
+kind: ConfigMap
+metadata:
+  name: httpserver-config
+---
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpserver
+  name: httpserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+    spec:
+      containers:
+      - image: winter2023/httpserver:6e3b25a
+        name: httpserver
+        args:
+        - --config
+        - /tmp/config/config.toml
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: httpserver-config
+          mountPath: /tmp/config
+      volumes:
+      - name: httpserver-config
+        configMap:
+          name: httpserver-config
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver
+spec:
+  ports:
+  - name: httpserver
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    app: httpserver
+---
+# ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: httpserver-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+      - cncamp.com
+    secretName: cncamp-tls
+  rules:
+    - host: cncamp.com
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: httpserver
+                port:
+                  number: 8888
