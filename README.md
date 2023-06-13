@@ -10,5 +10,5 @@ make httpserver-image
 
 # k8s部署
 ```
-kubectl apply -f https://github.com/asinglestep/geek/httpserver/deployment/deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/asinglestep/geek/master/httpserver/deployment/deployment.yaml
 ```
