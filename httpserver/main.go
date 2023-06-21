@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"geek/httpserver/config"
+	_ "geek/httpserver/docs"
 	"geek/httpserver/router"
 	"geek/httpserver/server"
 	"geek/httpserver/service"
@@ -45,7 +46,6 @@ func main() {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	s := <-quit
 	logger.Infof("got signal %v", s)
-
 	if err := svc.Stop(); err != nil {
 		logger.Errorf("svc.Stop error: %v", err)
 		os.Exit(-1)

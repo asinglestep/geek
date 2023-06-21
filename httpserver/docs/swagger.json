@@ -1,0 +1,42 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/healthz": {
+            "get": {
+                "description": "健康监测",
+                "tags": [
+                    "healthz"
+                ],
+                "summary": "健康监测接口",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/random": {
+            "get": {
+                "description": "添加0-2秒随机延时",
+                "tags": [
+                    "random"
+                ],
+                "summary": "延时接口",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
