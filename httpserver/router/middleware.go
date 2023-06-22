@@ -2,6 +2,7 @@ package router
 
 import (
 	"os"
+	"time"
 
 	"geek/httpserver/utils/logger"
 
@@ -22,8 +23,10 @@ func CopyRequestHeader(c *gin.Context) {
 }
 
 func Log(c *gin.Context) {
+	s := time.Now()
+
 	c.Next()
 
-	logger.WithContext(c.Request.Context()).Infof("[Access] path: %v, ip: %v, status code: %v",
-		c.Request.RequestURI, c.ClientIP(), c.Writer.Status())
+	logger.WithContext(c.Request.Context()).Infof("[Access] path: %v, ip: %v, status code: %v, cost time: %v",
+		c.Request.RequestURI, c.ClientIP(), c.Writer.Status(), time.Since(s))
 }
