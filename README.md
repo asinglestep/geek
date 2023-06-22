@@ -28,3 +28,8 @@ make httpserver-image
 ```
 kubectl apply -f https://raw.githubusercontent.com/asinglestep/geek/master/httpserver/deployment/deployment.yaml
 ```
+
+# prometheus监控
+```
+httpserver/prometheus/httpserver.json
+```
