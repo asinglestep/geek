@@ -1,0 +1,116 @@
+# configmap
+apiVersion: v1
+data:
+  config.toml: |
+    [server]
+      address="0.0.0.0:8888"
+    [log]
+      level="info"
+kind: ConfigMap
+metadata:
+  name: httpserver-config
+  namespace: tracing
+---
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpserver
+  name: httpserver
+  namespace: tracing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      labels:
+        app: httpserver
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8888"
+    spec:
+      containers:
+      - image: winter2023/httpserver:ba4ea99
+        name: httpserver
+        ports:
+        - containerPort: 8888
+        args:
+        - --config
+        - /tmp/config/config.toml
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests: 
+            cpu: "1"
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: httpserver-config
+          mountPath: /tmp/config
+      volumes:
+      - name: httpserver-config
+        configMap:
+          name: httpserver-config
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpserver
+  namespace: tracing
+spec:
+  ports:
+  - name: httpserver
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    app: httpserver
+---
+# istio VirtualService
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: httpserver-vs
+spec:
+  gateways:
+  - httpserver-gw
+  hosts:
+  - httpserver.cncamp.com
+  http:
+  - match:
+    - port: 443
+    route:
+    - destination:
+        host:  httpserver.tracing.svc.cluster.local
+        port:
+          number: 8888
+---
+# istio Gateway
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: httpserver-gw
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+      - httpserver.cncamp.com
+    port:
+      name: httpserver
+      number: 443
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: cncamp-credential

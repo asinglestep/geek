@@ -33,3 +33,20 @@ kubectl apply -f https://raw.githubusercontent.com/asinglestep/geek/master/https
 ```
 httpserver/prometheus/httpserver.json
 ```
+
+# istio ingress gateway部署
+```
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -subj '/O=cncamp Inc./CN=*.cncamp.com' -keyout cncamp.com.key -out cncamp.com.crt
+kubectl create -n istio-system secret tls cncamp-credential --key=cncamp.com.key --cert=cncamp.com.crt
+
+kubectl create ns tracing
+kubectl label ns tracing istio-injection=enabled
+kubectl apply -f istio.yaml
+```
+
+## 测试
+```
+kubectl get svc -n istio-system istio-ingressgateway
+export INGRESS=10.99.43.20
+curl --resolve httpserver.cncamp.com:443:$INGRESS https://httpserver.cncamp.com/random -v -k
+```
